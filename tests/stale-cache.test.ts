@@ -140,3 +140,46 @@ test("waits for the origin when there is nothing usable to serve", async () => {
 
   await Effect.runPromise(program.pipe(Effect.provide(TestClock.layer())));
 });
+
+test("past serveStaleFor, waits for a fresh value and falls back to the old one only on failure", async () => {
+  const program = Effect.gen(function* () {
+    let upstreamOk = true;
+    let calls = 0;
+    const get = yield* staleCache(
+      (key: string) =>
+        Effect.gen(function* () {
+          calls += 1;
+          if (!upstreamOk) {
+            return yield* Effect.fail(
+              new UpstreamError({ message: "upstream down" }),
+            );
+          }
+          return `v${calls}:${key}`;
+        }),
+      {
+        freshTtl: Duration.minutes(1),
+        serveStaleFor: Duration.minutes(2),
+        staleTtl: Duration.minutes(10),
+        capacity: 4,
+      },
+    );
+
+    assert.equal(yield* get("a"), "v1:a");
+    yield* TestClock.adjust(Duration.seconds(90)); // within serveStaleFor
+    assert.equal(yield* get("a"), "v1:a"); // answered at once
+    yield* Effect.yieldNow;
+    assert.equal(calls, 2); // refreshed behind it
+
+    yield* TestClock.adjust(Duration.minutes(3)); // past serveStaleFor
+    assert.equal(yield* get("a"), "v3:a"); // waited for the origin
+
+    upstreamOk = false;
+    yield* TestClock.adjust(Duration.minutes(3)); // past serveStaleFor again
+    assert.equal(yield* get("a"), "v3:a"); // origin down: old value stands in
+
+    yield* TestClock.adjust(Duration.minutes(8)); // past staleTtl
+    assert.ok(Exit.isFailure(yield* Effect.exit(get("a"))));
+  });
+
+  await Effect.runPromise(program.pipe(Effect.provide(TestClock.layer())));
+});
