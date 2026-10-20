@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { daysAhead, track } from "../lib/analytics";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { distanceMeters, useJourney } from "../api";
 import {
   decodeTripRequest,
@@ -29,6 +29,12 @@ import {
   type JourneyOption,
 } from "../types";
 import { useSearchFlag } from "../useSearchFlag";
+import {
+  MAX_WALK_TO_STOP_METERS,
+  nearestStop as nearestStopTo,
+  walkMeters,
+  type Via,
+} from "../lib/geocode";
 
 type LocationNote =
   | { kind: "nearest"; stop: CatalogStop; meters: number }
@@ -69,6 +75,15 @@ export function useTrip(stops: CatalogStop[]) {
   // Kept as data so the message follows a language change.
   const [locationNote, setLocationNote] = useState<LocationNote>(null);
   const [here, setHere] = useState<Position | null>(null);
+  const [pickTarget, setPickTarget] = useState<"from" | "to" | null>(null);
+  // A tapped spot waits here until the user confirms it; stop is null when none is near.
+  const [pending, setPending] = useState<{
+    point: Position;
+    stop: CatalogStop | null;
+    walk: number;
+  } | null>(null);
+  const [fromVia, setFromVia] = useState<Via | null>(null);
+  const [toVia, setToVia] = useState<Via | null>(null);
   const [recentTrips, setRecentTrips] = useState(() => loadRecentTrips());
   const journey = useJourney(request);
   useEffect(() => {
@@ -112,20 +127,44 @@ export function useTrip(stops: CatalogStop[]) {
     void setSearchRequest(null);
     setSelectedJourney(null);
   };
-  const changeFrom = (stop: CatalogStop | null) => {
+  const changeFrom = (stop: CatalogStop | null, via?: Via) => {
     setFrom(stop);
     clearJourney();
     setLocationNote(null);
+    setFromVia(stop && via ? { ...via, stopId: stop.id } : null);
   };
-  const changeTo = (stop: CatalogStop | null) => {
+  const changeTo = (stop: CatalogStop | null, via?: Via) => {
     setTo(stop);
     clearJourney();
+    setToVia(stop && via ? { ...via, stopId: stop.id } : null);
   };
   const swap = () => {
     setFrom(to);
     setTo(from);
+    setFromVia(toVia);
+    setToVia(fromVia);
     clearJourney();
     setLocationNote(null);
+  };
+  const startPicking = useCallback((target: "from" | "to" | null) => {
+    setPickTarget(target);
+    setPending(null);
+  }, []);
+  const pickPoint = (point: Position) => {
+    const nearest = nearestStopTo(point, latest.current.stops);
+    const near = nearest && nearest.meters <= MAX_WALK_TO_STOP_METERS;
+    setPending({
+      point,
+      stop: near ? nearest.stop : null,
+      walk: near ? walkMeters(nearest.meters) : 0,
+    });
+  };
+  const confirmPick = () => {
+    if (!pickTarget || !pending?.stop) return;
+    const via = { name: null, walk: pending.walk, ...pending.point };
+    if (pickTarget === "from") changeFrom(pending.stop, via);
+    else changeTo(pending.stop, via);
+    startPicking(null);
   };
   const changeDate = (next: string) => {
     setDate(next);
@@ -308,6 +347,13 @@ export function useTrip(stops: CatalogStop[]) {
     locationBusy,
     locationMessage,
     locate,
+    pickTarget,
+    startPicking,
+    pending,
+    pickPoint,
+    confirmPick,
+    fromVia,
+    toVia,
     fromIsNearest,
     nearbyStops,
     recentTrips,

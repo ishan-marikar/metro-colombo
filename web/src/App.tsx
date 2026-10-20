@@ -33,6 +33,7 @@ import { PhoneDrawer } from "./components/PhoneDrawer";
 import { RouteDetail, RouteList } from "./components/RoutesPanel";
 import { StopCard } from "./components/StopCard";
 import { TrackingPanel } from "./components/TrackingPanel";
+import type { Via } from "./lib/geocode";
 import { TripForm } from "./components/TripForm";
 import { TripSummary } from "./components/TripSummary";
 import { Button, buttonClass } from "./components/ui/Button";
@@ -79,6 +80,7 @@ import {
 
 const FOOTER_LINK =
   "font-semibold underline underline-offset-2 hover-fine:text-ink";
+import { distanceLabel } from "./i18n";
 import { stopName } from "./types";
 const MapView = lazy(() => import("./components/MapView"));
 
@@ -86,6 +88,30 @@ const NO_BUSES: LiveBus[] = [];
 const POPULAR_STOPS = ["makumbura", "colombo fort", "kottawa"];
 const CONTROLS_PX = 210;
 const TRACK_REFRESH_MS = 60_000;
+
+function pinsOf(trip: {
+  pending: { point: { latitude: number; longitude: number } } | null;
+  from: CatalogStop | null;
+  to: CatalogStop | null;
+  fromVia: Via | null;
+  toVia: Via | null;
+}) {
+  const chosen = (
+    [
+      ["from", trip.fromVia, trip.from],
+      ["to", trip.toVia, trip.to],
+    ] as const
+  ).flatMap(([kind, via, stop]) =>
+    via?.latitude !== undefined &&
+    via.longitude !== undefined &&
+    via.stopId === stop?.id
+      ? [{ kind, latitude: via.latitude, longitude: via.longitude }]
+      : [],
+  );
+  return trip.pending
+    ? [...chosen, { kind: "pending" as const, ...trip.pending.point }]
+    : chosen;
+}
 
 export default function App() {
   return (
@@ -352,6 +378,25 @@ function Home() {
     panelRef.current?.scrollTo({ top: 0 });
   }, [showResults, tab, trackingPlan]);
 
+  const { pickTarget, startPicking } = trip;
+  // Picking is a Plan-tab action: Esc or leaving the tab ends it.
+  useEffect(() => {
+    if (!pickTarget) return;
+    if (tab !== "plan") {
+      startPicking(null);
+      return;
+    }
+    const cancelOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") startPicking(null);
+    };
+    document.addEventListener("keydown", cancelOnEscape);
+    return () => document.removeEventListener("keydown", cancelOnEscape);
+  }, [pickTarget, tab, startPicking]);
+  const stopLabel = trip.pending?.stop
+    ? stopName(trip.pending.stop, language)
+    : "";
+  const distance = trip.pending ? distanceLabel(i18n, trip.pending.walk) : "";
+  const walk = t`${distance} walk`;
   const fromName = trip.from ? stopName(trip.from, language) : "";
   const toName = trip.to ? stopName(trip.to, language) : "";
   const popularStops = useMemo(
@@ -654,6 +699,8 @@ function Home() {
               <TripForm
                 from={trip.from}
                 to={trip.to}
+                fromVia={trip.fromVia}
+                toVia={trip.toVia}
                 date={trip.date}
                 onFromChange={trip.changeFrom}
                 onToChange={trip.changeTo}
@@ -670,6 +717,10 @@ function Home() {
                 locationBusy={trip.locationBusy}
                 locationMessage={trip.locationMessage}
                 onLocate={trip.locate}
+                onPickOnMap={(target) => {
+                  trip.startPicking(target);
+                  if (phone) setSnap("peek");
+                }}
                 fromIsNearest={trip.fromIsNearest}
                 stopSections={stopSections}
               />
@@ -961,6 +1012,9 @@ function Home() {
                 festive={festiveMap}
                 onCapabilities={setRichDevice}
                 language={language}
+                pickMode={tab === "plan" && trip.pickTarget !== null}
+                onPickPoint={trip.pickPoint}
+                pins={tab === "plan" && !trip.showResults ? pinsOf(trip) : []}
                 onStopSelect={(stop) => (stop ? openStop(stop) : closeStop())}
                 onBusSelect={handleBusSelect}
                 onFollowEvent={(event) => {
@@ -981,6 +1035,68 @@ function Home() {
                 }
               />
             </Suspense>
+            {trip.pickTarget && (
+              <div className="absolute top-7.5 left-1/2 z-20 flex w-max max-w-[calc(100%-6rem)] -translate-x-1/2 flex-col items-center gap-2 max-md:top-24">
+                <div
+                  className="flex items-center gap-3 rounded-full bg-ink py-2 pr-2 pl-5 text-white shadow-float"
+                  role="status"
+                >
+                  <span className="text-sm font-semibold">
+                    {trip.pickTarget === "from"
+                      ? t`Tap the map to choose your start.`
+                      : t`Tap the map to choose your destination.`}
+                  </span>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    pill
+                    onClick={() => trip.startPicking(null)}
+                  >
+                    {t`Cancel`}
+                  </Button>
+                </div>
+                {trip.pending && (
+                  <div
+                    className={`w-72 max-w-full p-3.5 shadow-float ${cardClass()}`}
+                    role="status"
+                  >
+                    {trip.pending.stop ? (
+                      <>
+                        <p className="text-sm font-semibold">
+                          {t`Nearest stop: ${stopLabel} · ${walk}`}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {t`Tap another spot to change it.`}
+                        </p>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          block
+                          className="mt-2.5"
+                          onClick={() => {
+                            trip.confirmPick();
+                            setSnap((current) =>
+                              current === "peek" ? "half" : current,
+                            );
+                          }}
+                        >
+                          {t`Use this spot`}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-semibold">
+                          {t`No bus stop within 5 km of that spot.`}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {t`Tap another spot to change it.`}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             {festive.theme && (
               <OccasionLayers
                 theme={festive.theme}
@@ -991,7 +1107,7 @@ function Home() {
             )}
             <div
               className={`pointer-events-none absolute top-7.5 right-19 left-7.5 max-md:hidden ${
-                selectedBus ? "hidden" : ""
+                selectedBus || trip.pickTarget ? "hidden" : ""
               }`}
             >
               <div

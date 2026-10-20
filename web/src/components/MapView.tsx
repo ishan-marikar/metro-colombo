@@ -104,6 +104,13 @@ type Props = Omit<MapViewProps, "onFollowChange"> & {
   busLine?: BusLine | null;
   festive?: FestiveMap | null;
   onCapabilities?: (rich: boolean) => void;
+  pickMode?: boolean;
+  onPickPoint?: (point: { latitude: number; longitude: number }) => void;
+  pins?: {
+    kind: "from" | "to" | "pending";
+    latitude: number;
+    longitude: number;
+  }[];
 };
 
 type Insets = Props["insets"];
@@ -1134,6 +1141,14 @@ export default function MapView(props: Props) {
       };
       activeMap.on("click", (event) => {
         if (!ready.current) return;
+        const { pickMode, onPickPoint } = latest.current.props;
+        if (pickMode && onPickPoint) {
+          onPickPoint({
+            latitude: event.lngLat.lat,
+            longitude: event.lngLat.lng,
+          });
+          return;
+        }
         const busId = busLayerRef.current?.pick(event.point);
         if (busId && tapBus(busId)) return;
         if (!activeMap.getLayer(STOP_HIT)) return;
@@ -1171,7 +1186,11 @@ export default function MapView(props: Props) {
             );
         if (window.matchMedia("(hover: hover)").matches)
           setHover(overStop ? stopKey(overStop) : null);
-        canvas!.style.cursor = overStop || overBus ? "pointer" : "";
+        canvas!.style.cursor = latest.current.props.pickMode
+          ? "crosshair"
+          : overStop || overBus
+            ? "pointer"
+            : "";
       });
       activeMap.on("mouseout", () => {
         if (ready.current) setHover(null);
@@ -1513,6 +1532,68 @@ export default function MapView(props: Props) {
       markers.forEach((marker) => marker.remove());
     };
   }, [from, to, language, attempt, status]);
+
+  // Keyed by value: the caller builds a fresh array on every render.
+  const pinKey = (props.pins ?? [])
+    .map((pin) => `${pin.kind},${pin.latitude},${pin.longitude}`)
+    .join(";");
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || status === "unavailable" || !pinKey) return;
+    const markers = pinKey.split(";").map((item) => {
+      const [kind, latitude, longitude] = item.split(",");
+      const element = document.createElement("div");
+      element.className = `size-4 rounded-full border-2 border-white shadow-float ${
+        kind === "from"
+          ? "bg-brand"
+          : kind === "to"
+            ? "bg-destination"
+            : "bg-ink ring-4 ring-ink/25"
+      }`;
+      element.setAttribute("role", "img");
+      element.setAttribute("aria-label", t`Chosen spot`);
+      return new maplibregl.Marker({ element })
+        .setLngLat([Number(longitude), Number(latitude)])
+        .addTo(map);
+    });
+    return () => {
+      markers.forEach((marker) => marker.remove());
+    };
+  }, [pinKey, attempt, status, t]);
+
+  // The camera follows chosen spots only; a spot waiting for confirmation
+  // shouldn't move the map under the finger.
+  const framedKey = (props.pins ?? [])
+    .filter((pin) => pin.kind !== "pending")
+    .map((pin) => `${pin.latitude},${pin.longitude}`)
+    .join(";");
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || status === "unavailable" || !framedKey) return;
+    const spots = framedKey.split(";").map((item) => {
+      const [latitude, longitude] = item.split(",");
+      return { latitude: Number(latitude), longitude: Number(longitude) };
+    });
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches
+      ? 0
+      : 600;
+    if (spots.length > 1) {
+      const bounds = new maplibregl.LngLatBounds();
+      spots.forEach((spot) => bounds.extend([spot.longitude, spot.latitude]));
+      map.fitBounds(bounds, {
+        padding: viewportPadding(latest.current.props.insets),
+        maxZoom: 14.5,
+        duration,
+      });
+    } else {
+      map.easeTo({
+        center: [spots[0].longitude, spots[0].latitude],
+        zoom: Math.max(map.getZoom(), 14.5),
+        duration,
+      });
+    }
+  }, [framedKey, attempt, status]);
 
   const warningMessage =
     warning === "permission"

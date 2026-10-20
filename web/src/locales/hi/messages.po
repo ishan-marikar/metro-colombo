@@ -13,7 +13,7 @@ msgstr ""
 msgid "“{0}” by {1}"
 msgstr "“{0}”, {1} द्वारा"
 
-#: src/components/TripForm.tsx:189
+#: src/components/TripForm.tsx:198
 msgid "(nearest)"
 msgstr "(सबसे नज़दीक)"
 
@@ -69,7 +69,9 @@ msgstr "{count, plural, one {# स्टॉप} other {# स्टॉप}}"
 msgid "{current} of {total} places taken"
 msgstr "{total} में से {current} जगहें भरी हैं"
 
-#: src/components/StopPicker.tsx:39
+#: src/App.tsx:399
+#: src/components/StopPicker.tsx:60
+#: src/components/ViaNote.tsx:33
 msgid "{distance} walk"
 msgstr "{distance} पैदल"
 
@@ -106,11 +108,11 @@ msgstr "{plate} {board} पर है"
 msgid "{plate} is on its way to {board}"
 msgstr "{plate} {board} की ओर आ रही है"
 
-#: src/components/StopPicker.tsx:216
+#: src/components/StopPicker.tsx:270
 msgid "{stopCount, plural, one {# stop. Tap one to select.} other {# stops. Tap one to select.}}"
 msgstr "{stopCount, plural, one {# स्टॉप। चुनने के लिए टैप करें।} other {# स्टॉप। चुनने के लिए टैप करें।}}"
 
-#: src/components/StopPicker.tsx:222
+#: src/components/StopPicker.tsx:276
 msgid "{stopCount, plural, one {# stop. Use the arrow keys to choose, then press Enter.} other {# stops. Use the arrow keys to choose, then press Enter.}}"
 msgstr "{stopCount, plural, one {# स्टॉप। तीर वाली कुंजियों से चुनें, फिर Enter दबाएँ।} other {# स्टॉप। तीर वाली कुंजियों से चुनें, फिर Enter दबाएँ।}}"
 
@@ -137,7 +139,7 @@ msgstr "<0>यहाँ चढ़ें:</0> {boardName}"
 msgid "A peaceful Poya day"
 msgstr "शांतिमय पोया दिवस"
 
-#: src/components/MapView.tsx:1602
+#: src/components/MapView.tsx:1683
 msgid "A: Start · B: Destination"
 msgstr "A: शुरुआत · B: मंज़िल"
 
@@ -155,7 +157,7 @@ msgstr "सड़क से लगभग {road}, ट्रैफ़िक मे
 msgid "All bus routes"
 msgstr "सभी बस रूट"
 
-#: src/components/StopPicker.tsx:110
+#: src/components/StopPicker.tsx:135
 msgid "All stops"
 msgstr "सभी स्टॉप"
 
@@ -170,6 +172,10 @@ msgstr "अनुमति दें"
 #: src/i18n.ts:78
 msgid "AM"
 msgstr "AM"
+
+#: src/components/StopPicker.tsx:169
+msgid "Anywhere in Sri Lanka"
+msgstr "श्रीलंका में कहीं भी"
 
 #: src/i18n.ts:51
 msgctxt "month"
@@ -220,15 +226,15 @@ msgstr "बस आ गई है"
 msgid "Bus live"
 msgstr "बस लाइव"
 
-#: src/App.tsx:936
+#: src/App.tsx:987
 msgid "Bus route map"
 msgstr "बस रूट का नक्शा"
 
-#: src/App.tsx:511
+#: src/App.tsx:556
 msgid "Bus routes"
 msgstr "बस रूट"
 
-#: src/App.tsx:590
+#: src/App.tsx:635
 msgctxt "tab"
 msgid "Bus routes"
 msgstr "बस रूट"
@@ -240,6 +246,10 @@ msgstr "बस स्टॉप"
 #: src/components/JourneyResults.tsx:820
 msgid "Buses for your trip"
 msgstr "आपकी यात्रा के लिए बसें"
+
+#: src/App.tsx:1055
+msgid "Cancel"
+msgstr "रद्द करें"
 
 #: src/components/JourneyResults.tsx:208
 msgid "Change bus at {changeName}"
@@ -253,13 +263,17 @@ msgstr "दोनों स्टॉप जाँचें और आज या 
 msgid "Check your connection and try again."
 msgstr "अपना कनेक्शन जाँचें और फिर कोशिश करें।"
 
-#: src/components/TripForm.tsx:230
+#: src/components/TripForm.tsx:260
 msgid "Choose a different destination from your starting stop."
 msgstr "अपने शुरुआती स्टॉप से अलग मंज़िल चुनें।"
 
-#: src/components/TripForm.tsx:190
+#: src/components/TripForm.tsx:199
 msgid "Choose a start stop"
 msgstr "शुरुआती स्टॉप चुनें"
+
+#: src/components/StopPicker.tsx:418
+msgid "Choose on map"
+msgstr "मानचित्र पर चुनें"
 
 #: src/components/HowToUse.tsx:17
 msgid "Choose where you want to get off."
@@ -269,18 +283,23 @@ msgstr "चुनें कि आपको कहाँ उतरना है�
 msgid "Choose your starting stop and destination to find a journey."
 msgstr "यात्रा खोजने के लिए शुरुआती स्टॉप और मंज़िल चुनें।"
 
-#: src/App.tsx:684
+#: src/components/MapView.tsx:1554
+#: src/components/ViaNote.tsx:52
+msgid "Chosen spot"
+msgstr "चुना हुआ स्थान"
+
+#: src/App.tsx:735
 msgctxt "recent trips"
 msgid "Clear"
 msgstr "मिटाएँ"
 
-#: src/components/StopPicker.tsx:400
-#: src/components/StopPicker.tsx:474
+#: src/components/StopPicker.tsx:513
+#: src/components/StopPicker.tsx:587
 msgid "Clear {label}"
 msgstr "{label} मिटाएँ"
 
-#: src/App.tsx:1047
-#: src/components/StopPicker.tsx:435
+#: src/App.tsx:1163
+#: src/components/StopPicker.tsx:548
 msgid "Close"
 msgstr "बंद करें"
 
@@ -288,11 +307,11 @@ msgstr "बंद करें"
 msgid "Close stop details"
 msgstr "स्टॉप की जानकारी बंद करें"
 
-#: src/state/useTrip.ts:281
+#: src/state/useTrip.ts:320
 msgid "Closest stop: {nearestName} · {nearestDistance} away in a straight line. Check your walking route."
 msgstr "सबसे नज़दीकी स्टॉप: {nearestName} · सीधी दूरी {nearestDistance}। अपना पैदल रास्ता जाँच लें।"
 
-#: src/App.tsx:1011
+#: src/App.tsx:1127
 msgid "Colombo & beyond"
 msgstr "कोलंबो और आगे"
 
@@ -313,7 +332,7 @@ msgstr "दिस."
 msgid "Decorations"
 msgstr "सजावट"
 
-#: src/components/MapView.tsx:1502
+#: src/components/MapView.tsx:1521
 msgid "Destination: {stopLabel}"
 msgstr "मंज़िल: {stopLabel}"
 
@@ -330,7 +349,7 @@ msgstr "हो गया"
 msgid "Drag to resize"
 msgstr "आकार बदलने के लिए खींचें"
 
-#: src/components/MapView.tsx:589
+#: src/components/MapView.tsx:596
 msgid "Driver view"
 msgstr "ड्राइवर व्यू"
 
@@ -352,7 +371,7 @@ msgstr "ईद मुबारक"
 msgid "End trip"
 msgstr "यात्रा समाप्त करें"
 
-#: src/App.tsx:578
+#: src/App.tsx:623
 msgid "Explore Metro"
 msgstr "Metro देखें"
 
@@ -377,23 +396,23 @@ msgstr "फ़र."
 msgid "Filling up"
 msgstr "भर रही है"
 
-#: src/App.tsx:717
+#: src/App.tsx:768
 msgid "Find buses for the way back, from {end} to {start}"
 msgstr "वापसी की बसें खोजें, {end} से {start} तक"
 
-#: src/App.tsx:703
+#: src/App.tsx:754
 msgid "Find buses from {start} to {end}"
 msgstr "{start} से {end} तक की बसें खोजें"
 
-#: src/components/TripForm.tsx:244
+#: src/components/TripForm.tsx:274
 msgid "Find my bus"
 msgstr "मेरी बस खोजें"
 
-#: src/components/MapView.tsx:433
+#: src/components/MapView.tsx:440
 msgid "Find my location"
 msgstr "मेरी लोकेशन खोजें"
 
-#: src/App.tsx:1016
+#: src/App.tsx:1132
 msgid "Find your way around."
 msgstr "अपना रास्ता खोजें।"
 
@@ -405,11 +424,11 @@ msgstr "समय-सारणी वाली यात्राएँ खो�
 msgid "Finding this bus’s stops…"
 msgstr "इस बस के स्टॉप खोजे जा रहे हैं…"
 
-#: src/components/TripForm.tsx:244
+#: src/components/TripForm.tsx:274
 msgid "Finding your buses…"
 msgstr "आपकी बसें खोजी जा रही हैं…"
 
-#: src/components/TripForm.tsx:219
+#: src/components/TripForm.tsx:249
 msgid "Finding your location…"
 msgstr "आपकी लोकेशन खोजी जा रही है…"
 
@@ -436,7 +455,8 @@ msgctxt "weekday"
 msgid "Fri"
 msgstr "शुक्र"
 
-#: src/components/TripForm.tsx:188
+#: src/components/TripForm.tsx:197
+#: src/components/TripForm.tsx:233
 msgid "From"
 msgstr "कहाँ से"
 
@@ -531,7 +551,7 @@ msgstr "यहाँ → {end}"
 msgid "Hide"
 msgstr "छिपाएँ"
 
-#: src/components/MapView.tsx:601
+#: src/components/MapView.tsx:608
 msgid "Hide live buses"
 msgstr "लाइव बसें छिपाएँ"
 
@@ -557,7 +577,7 @@ msgstr "जन."
 msgid "Journey steps"
 msgstr "यात्रा के चरण"
 
-#: src/components/MapView.tsx:1593
+#: src/components/MapView.tsx:1674
 msgid "Journey stops; rings show boarding and getting off"
 msgstr "यात्रा के स्टॉप; गोले चढ़ने और उतरने की जगह दिखाते हैं"
 
@@ -580,11 +600,11 @@ msgstr "मेरा मौजूदा चुनाव रहने दें"
 msgid "Language"
 msgstr "भाषा"
 
-#: src/App.tsx:1036
+#: src/App.tsx:1152
 msgid "Lanka Metro isn’t sending this route line right now."
 msgstr "Lanka Metro अभी इस रूट की लाइन नहीं भेज रहा है।"
 
-#: src/components/MapView.tsx:589
+#: src/components/MapView.tsx:596
 msgid "Leave driver view"
 msgstr "ड्राइवर व्यू से बाहर निकलें"
 
@@ -612,7 +632,7 @@ msgstr "लाइव बस"
 msgid "Live bus positions are unavailable right now. Timetables still work."
 msgstr "बसों की लाइव लोकेशन अभी उपलब्ध नहीं है। समय-सारणी अब भी काम करती है।"
 
-#: src/components/MapView.tsx:1599
+#: src/components/MapView.tsx:1680
 msgid "Live bus; tap to select and follow"
 msgstr "लाइव बस; चुनने और फ़ॉलो करने के लिए टैप करें"
 
@@ -630,20 +650,20 @@ msgstr "लाइव अनुमान"
 msgid "Live position lost; showing schedule"
 msgstr "लाइव लोकेशन खो गई; समय-सारणी दिखा रहे हैं"
 
-#: src/App.tsx:812
+#: src/App.tsx:863
 msgid "Load missing stops"
 msgstr "छूटे हुए स्टॉप लोड करें"
 
-#: src/App.tsx:759
+#: src/App.tsx:810
 msgid "Loading bus routes…"
 msgstr "बस रूट लोड हो रहे हैं…"
 
-#: src/App.tsx:941
-#: src/components/MapView.tsx:1539
+#: src/App.tsx:992
+#: src/components/MapView.tsx:1620
 msgid "Loading map…"
 msgstr "नक्शा लोड हो रहा है…"
 
-#: src/components/StopPicker.tsx:212
+#: src/components/StopPicker.tsx:264
 msgid "Loading stops…"
 msgstr "स्टॉप लोड हो रहे हैं…"
 
@@ -651,15 +671,15 @@ msgstr "स्टॉप लोड हो रहे हैं…"
 msgid "Loading the stops…"
 msgstr "स्टॉप लोड हो रहे हैं…"
 
-#: src/components/MapView.tsx:1519
+#: src/components/MapView.tsx:1600
 msgid "Location permission was not granted. You can still choose your stops."
 msgstr "लोकेशन की अनुमति नहीं मिली। आप अब भी अपने स्टॉप चुन सकते हैं।"
 
-#: src/components/MapView.tsx:434
+#: src/components/MapView.tsx:441
 msgid "Location unavailable"
 msgstr "लोकेशन उपलब्ध नहीं"
 
-#: src/state/useTrip.ts:283
+#: src/state/useTrip.ts:322
 msgid "Location was not available. You can still type your starting stop."
 msgstr "लोकेशन उपलब्ध नहीं थी। आप अब भी अपना शुरुआती स्टॉप टाइप कर सकते हैं।"
 
@@ -667,19 +687,19 @@ msgstr "लोकेशन उपलब्ध नहीं थी। आप अ�
 msgid "Looking around"
 msgstr "आसपास देख रहे हैं"
 
-#: src/components/MapView.tsx:435
+#: src/components/MapView.tsx:442
 msgid "Map credits"
 msgstr "नक्शे का श्रेय"
 
-#: src/components/MapView.tsx:1585
+#: src/components/MapView.tsx:1666
 msgid "Map key"
 msgstr "नक्शे के चिह्न"
 
-#: src/components/MapView.tsx:1523
+#: src/components/MapView.tsx:1604
 msgid "Map tiles could not load from the external map provider. Check your internet connection. You can still plan your journey."
 msgstr "बाहरी नक्शा प्रदाता से नक्शे के टुकड़े लोड नहीं हो सके। अपना इंटरनेट कनेक्शन जाँचें। आप अब भी अपनी यात्रा की योजना बना सकते हैं।"
 
-#: src/components/MapView.tsx:1549
+#: src/components/MapView.tsx:1630
 msgid "Map unavailable"
 msgstr "नक्शा उपलब्ध नहीं"
 
@@ -697,7 +717,7 @@ msgstr "मई"
 msgid "Merry Christmas"
 msgstr "मेरी क्रिसमस"
 
-#: src/App.tsx:886
+#: src/App.tsx:937
 msgid "Metro home"
 msgstr "Metro होम"
 
@@ -710,11 +730,12 @@ msgstr "सोम"
 msgid "near {nearName}"
 msgstr "{nearName} के पास"
 
-#: src/App.tsx:368
+#: src/App.tsx:413
 msgid "Near you"
 msgstr "आपके पास"
 
-#: src/components/StopPicker.tsx:282
+#: src/App.tsx:1066
+#: src/components/ViaNote.tsx:55
 msgid "Nearest stop: {stopLabel} · {walk}"
 msgstr "सबसे नज़दीकी स्टॉप: {stopLabel} · {walk}"
 
@@ -743,11 +764,15 @@ msgstr "अभी कोई बस तय नहीं हुई"
 msgid "No bus assigned yet, so it can’t be followed live."
 msgstr "अभी कोई बस तय नहीं हुई, इसलिए इसे लाइव फ़ॉलो नहीं किया जा सकता।"
 
+#: src/App.tsx:1089
+msgid "No bus stop within 5 km of that spot."
+msgstr "उस जगह के 5 किमी के भीतर कोई बस स्टॉप नहीं है।"
+
 #: src/components/LiveBusNotice.tsx:58
 msgid "No buses reporting here right now."
 msgstr "अभी यहाँ कोई बस लोकेशन नहीं भेज रही है।"
 
-#: src/components/StopPicker.tsx:214
+#: src/components/StopPicker.tsx:268
 msgid "No matching stops. Try another stop name or a place."
 msgstr "कोई मिलता-जुलता स्टॉप नहीं मिला। कोई दूसरा स्टॉप नाम या जगह आज़माएँ।"
 
@@ -767,7 +792,7 @@ msgstr "नहीं, धन्यवाद"
 msgid "None heading this way right now · {elsewhere} on the other direction"
 msgstr "अभी इस दिशा में कोई नहीं · दूसरी दिशा में {elsewhere}"
 
-#: src/App.tsx:823
+#: src/App.tsx:874
 msgid "Not affiliated with <0>Lanka Metro Transit</0> or the official <1>LMT GO app</1>."
 msgstr "<0>Lanka Metro Transit</0> या आधिकारिक <1>LMT GO ऐप</1> से कोई संबंध नहीं है।"
 
@@ -801,13 +826,17 @@ msgstr "नक्शे पर"
 msgid "On your way to {alight}"
 msgstr "आप {alight} की ओर जा रहे हैं"
 
-#: src/App.tsx:756
+#: src/App.tsx:807
 msgid "Open a route to see its stops and where its buses are now."
 msgstr "किसी रूट को खोलकर उसके स्टॉप और बसों की मौजूदा जगह देखें।"
 
 #: src/components/LastMileRide.tsx:58
 msgid "Open PickMe"
 msgstr "PickMe खोलें"
+
+#: src/components/ViaNote.tsx:59
+msgid "Other stops nearby"
+msgstr "आस-पास के अन्य स्टॉप"
 
 #: src/routes/__root.tsx:14
 msgid "Page not found :c"
@@ -829,15 +858,15 @@ msgstr "पैनल: आधी ऊँचाई"
 msgid "Panel: minimised"
 msgstr "पैनल: छोटा किया गया"
 
-#: src/components/TripForm.tsx:60
+#: src/components/TripForm.tsx:62
 msgid "Pick a date"
 msgstr "तारीख़ चुनें"
 
-#: src/App.tsx:585
+#: src/App.tsx:630
 msgid "Plan a trip"
 msgstr "यात्रा की योजना बनाएँ"
 
-#: src/App.tsx:511
+#: src/App.tsx:556
 msgid "Plan your bus trip"
 msgstr "अपनी बस यात्रा की योजना बनाएँ"
 
@@ -853,15 +882,15 @@ msgstr "काफ़ी जगह है"
 msgid "PM"
 msgstr "PM"
 
-#: src/components/MapView.tsx:432
+#: src/components/MapView.tsx:439
 msgid "Point north"
 msgstr "उत्तर की ओर करें"
 
-#: src/App.tsx:369
+#: src/App.tsx:414
 msgid "Popular"
 msgstr "लोकप्रिय"
 
-#: src/App.tsx:732
+#: src/App.tsx:783
 msgid "Popular starting stops"
 msgstr "लोकप्रिय शुरुआती स्टॉप"
 
@@ -881,11 +910,11 @@ msgstr "निजता के विकल्प"
 msgid "Public holiday: buses may run a holiday timetable."
 msgstr "सार्वजनिक अवकाश: बसें अवकाश की समय-सारिणी पर चल सकती हैं।"
 
-#: src/App.tsx:367
+#: src/App.tsx:412
 msgid "Recent"
 msgstr "हाल की"
 
-#: src/App.tsx:681
+#: src/App.tsx:732
 msgid "Recent trips"
 msgstr "हाल की यात्राएँ"
 
@@ -905,11 +934,11 @@ msgstr "रूट {route}, {spokenPlaces} की ओर"
 msgid "Route and stop codes and how many days ahead you search."
 msgstr "रूट और स्टॉप के कोड, और आप कितने दिन आगे तक खोजते हैं।"
 
-#: src/components/StopPicker.tsx:294
+#: src/components/StopPicker.tsx:383
 msgid "Routes"
 msgstr "रूट"
 
-#: src/components/MapView.tsx:1528
+#: src/components/MapView.tsx:1609
 msgid "Routes and stops map"
 msgstr "रूट और स्टॉप का नक्शा"
 
@@ -932,6 +961,10 @@ msgstr "निर्धारित आगमन"
 msgid "Scheduled departure"
 msgstr "निर्धारित रवानगी"
 
+#: src/components/StopPicker.tsx:267
+msgid "Searching places…"
+msgstr "जगहें खोज रहे हैं…"
+
 #: src/components/BusCard.tsx:238
 msgid "See all stops"
 msgstr "सभी स्टॉप देखें"
@@ -949,7 +982,7 @@ msgstr "सित."
 msgid "Served by"
 msgstr "सेवा देने वाली"
 
-#: src/App.tsx:856
+#: src/App.tsx:907
 msgid "Service status"
 msgstr "सेवा की स्थिति"
 
@@ -957,15 +990,15 @@ msgstr "सेवा की स्थिति"
 msgid "Show"
 msgstr "दिखाएँ"
 
-#: src/components/MapView.tsx:593
+#: src/components/MapView.tsx:600
 msgid "Show 3D map"
 msgstr "3D नक्शा दिखाएँ"
 
-#: src/components/MapView.tsx:593
+#: src/components/MapView.tsx:600
 msgid "Show flat map"
 msgstr "सपाट नक्शा दिखाएँ"
 
-#: src/components/MapView.tsx:601
+#: src/components/MapView.tsx:608
 msgid "Show live buses"
 msgstr "लाइव बसें दिखाएँ"
 
@@ -989,11 +1022,11 @@ msgstr "अगला दिन दिखाएँ"
 msgid "Show tomorrow’s buses"
 msgstr "कल की बसें दिखाएँ"
 
-#: src/components/MapView.tsx:1524
+#: src/components/MapView.tsx:1605
 msgid "Some map content could not load. The map or network connection may be unavailable. You can still plan your journey."
 msgstr "नक्शे की कुछ सामग्री लोड नहीं हो सकी। नक्शा या नेटवर्क कनेक्शन उपलब्ध नहीं हो सकता। आप अब भी अपनी यात्रा की योजना बना सकते हैं।"
 
-#: src/App.tsx:816
+#: src/App.tsx:867
 msgid "Some stops couldn’t be loaded. Search may be incomplete."
 msgstr "कुछ स्टॉप लोड नहीं हो सके। खोज अधूरी हो सकती है।"
 
@@ -1001,11 +1034,11 @@ msgstr "कुछ स्टॉप लोड नहीं हो सके। ख
 msgid "Start here"
 msgstr "यहाँ से शुरू करें"
 
-#: src/components/MapView.tsx:1502
+#: src/components/MapView.tsx:1521
 msgid "Start: {stopLabel}"
 msgstr "शुरुआत: {stopLabel}"
 
-#: src/components/MapView.tsx:1588
+#: src/components/MapView.tsx:1669
 msgid "Stop"
 msgstr "स्टॉप"
 
@@ -1027,7 +1060,7 @@ msgctxt "weekday"
 msgid "Sun"
 msgstr "रवि"
 
-#: src/components/TripForm.tsx:204
+#: src/components/TripForm.tsx:214
 msgid "Swap starting and destination stops"
 msgstr "शुरुआती और मंज़िल वाले स्टॉप आपस में बदलें"
 
@@ -1039,7 +1072,20 @@ msgstr "योजना के लिए स्टॉप टैप करें 
 msgid "Tap a stop to plan a trip"
 msgstr "यात्रा की योजना बनाने के लिए स्टॉप टैप करें"
 
-#: src/components/MapView.tsx:1552
+#: src/App.tsx:1069
+#: src/App.tsx:1092
+msgid "Tap another spot to change it."
+msgstr "बदलने के लिए कोई और जगह टैप करें।"
+
+#: src/App.tsx:1047
+msgid "Tap the map to choose your destination."
+msgstr "अपनी मंज़िल चुनने के लिए मानचित्र पर टैप करें।"
+
+#: src/App.tsx:1046
+msgid "Tap the map to choose your start."
+msgstr "अपनी शुरुआत चुनने के लिए मानचित्र पर टैप करें।"
+
+#: src/components/MapView.tsx:1633
 msgid "The map needs an internet connection and browser WebGL support. You can still choose stops and plan your journey."
 msgstr "नक्शे के लिए इंटरनेट कनेक्शन और ब्राउज़र में WebGL सपोर्ट चाहिए। आप अब भी स्टॉप चुन सकते हैं और यात्रा की योजना बना सकते हैं।"
 
@@ -1069,11 +1115,11 @@ msgstr "समय श्रीलंका के समय में हैं�
 msgid "To {toName}"
 msgstr "{toName} तक"
 
-#: src/components/TripForm.tsx:52
+#: src/components/TripForm.tsx:54
 msgid "Today"
 msgstr "आज"
 
-#: src/components/TripForm.tsx:53
+#: src/components/TripForm.tsx:55
 msgid "Tomorrow"
 msgstr "कल"
 
@@ -1089,13 +1135,13 @@ msgstr "मेरी यात्रा ट्रैक करें"
 msgid "Tracked bus"
 msgstr "ट्रैक की जा रही बस"
 
-#: src/components/MapView.tsx:465
+#: src/components/MapView.tsx:472
 msgid "Transit map. Use arrow keys to move and plus or minus to zoom."
 msgstr "परिवहन का नक्शा। हिलाने के लिए तीर वाली कुंजियाँ और ज़ूम के लिए प्लस या माइनस का इस्तेमाल करें।"
 
-#: src/components/TripForm.tsx:66
-#: src/components/TripForm.tsx:90
-#: src/components/TripForm.tsx:95
+#: src/components/TripForm.tsx:68
+#: src/components/TripForm.tsx:92
+#: src/components/TripForm.tsx:97
 msgid "Travel date"
 msgstr "यात्रा की तारीख़"
 
@@ -1107,15 +1153,15 @@ msgstr "{start} से इस स्टॉप तक की यात्रा"
 msgid "Trip from this stop to {end}"
 msgstr "इस स्टॉप से {end} तक की यात्रा"
 
-#: src/App.tsx:798
-#: src/App.tsx:1042
+#: src/App.tsx:849
+#: src/App.tsx:1158
 #: src/components/JourneyResults.tsx:774
 #: src/components/RoutesPanel.tsx:234
 msgid "Try again"
 msgstr "फिर कोशिश करें"
 
-#: src/components/MapView.tsx:1560
-#: src/components/MapView.tsx:1577
+#: src/components/MapView.tsx:1641
+#: src/components/MapView.tsx:1658
 msgid "Try map again"
 msgstr "नक्शा फिर आज़माएँ"
 
@@ -1133,7 +1179,7 @@ msgstr "मंगल"
 msgid "Turn off festive touches"
 msgstr "त्योहार की सजावट बंद करें"
 
-#: src/components/TripForm.tsx:175
+#: src/components/TripForm.tsx:183
 msgid "Type a stop or a place"
 msgstr "कोई स्टॉप या जगह टाइप करें"
 
@@ -1141,9 +1187,13 @@ msgstr "कोई स्टॉप या जगह टाइप करें"
 msgid "Type your starting stop and choose a result."
 msgstr "अपना शुरुआती स्टॉप टाइप करें और कोई नतीजा चुनें।"
 
-#: src/components/TripForm.tsx:220
+#: src/components/TripForm.tsx:250
 msgid "Use my location for the nearest stop"
 msgstr "सबसे नज़दीकी स्टॉप के लिए मेरी लोकेशन इस्तेमाल करें"
+
+#: src/App.tsx:1083
+msgid "Use this spot"
+msgstr "यह जगह इस्तेमाल करें"
 
 #: src/components/JourneyResults.tsx:210
 msgid "Wait about {waitLabel}"
@@ -1157,7 +1207,7 @@ msgstr "सिग्नल का इंतज़ार है…"
 msgid "Walk"
 msgstr "पैदल चलें"
 
-#: src/App.tsx:802
+#: src/App.tsx:853
 msgid "We can’t connect to Metro right now."
 msgstr "अभी हम Metro से जुड़ नहीं पा रहे हैं।"
 
@@ -1174,12 +1224,13 @@ msgstr "बुध"
 msgid "What we collect"
 msgstr "हम क्या इकट्ठा करते हैं"
 
-#: src/App.tsx:563
-#: src/components/TripForm.tsx:174
+#: src/App.tsx:608
+#: src/components/TripForm.tsx:182
+#: src/components/TripForm.tsx:223
 msgid "Where to?"
 msgstr "कहाँ जाना है?"
 
-#: src/App.tsx:644
+#: src/App.tsx:689
 #: src/components/JourneyResults.tsx:787
 msgid "Where would you like to go?"
 msgstr "आप कहाँ जाना चाहेंगे?"
@@ -1201,7 +1252,7 @@ msgstr "आप {alight} पर हैं।"
 msgid "You’ve arrived"
 msgstr "आप पहुँच गए हैं"
 
-#: src/state/useTrip.ts:282
+#: src/state/useTrip.ts:321
 msgid "Your browser cannot find your location. Please choose a stop."
 msgstr "आपका ब्राउज़र आपकी लोकेशन नहीं खोज पा रहा। कृपया कोई स्टॉप चुनें।"
 
@@ -1218,7 +1269,7 @@ msgstr "आपकी बस बदलकर {plate} हो गई है"
 msgid "Your destination"
 msgstr "आपकी मंज़िल"
 
-#: src/components/MapView.tsx:1521
+#: src/components/MapView.tsx:1602
 msgid "Your location could not be found. Choose your stops instead."
 msgstr "आपकी लोकेशन नहीं मिल सकी। इसके बजाय अपने स्टॉप चुनें।"
 
@@ -1231,10 +1282,10 @@ msgstr "आपकी शुरुआत"
 msgid "Your stop"
 msgstr "आपका स्टॉप"
 
-#: src/components/MapView.tsx:430
+#: src/components/MapView.tsx:437
 msgid "Zoom in"
 msgstr "ज़ूम इन"
 
-#: src/components/MapView.tsx:431
+#: src/components/MapView.tsx:438
 msgid "Zoom out"
 msgstr "ज़ूम आउट"

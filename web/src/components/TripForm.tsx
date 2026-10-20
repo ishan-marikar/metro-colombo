@@ -10,10 +10,12 @@ import { useLingui } from "@lingui/react/macro";
 import { dateLabel } from "../i18n";
 import { colomboDate, nextDay } from "../types";
 import type { CatalogStop, Language, Place } from "../types";
+import type { Via } from "../lib/geocode";
 import StopPicker, { type StopSection } from "./StopPicker";
 import { Button } from "./ui/Button";
 import { cardClass } from "./ui/Card";
 import { Field } from "./ui/Field";
+import { ViaNote } from "./ViaNote";
 import { IconButton } from "./ui/IconButton";
 
 const HELPER = "pb-3 text-sm leading-relaxed";
@@ -125,12 +127,17 @@ export function TripForm({
   onLocate,
   fromIsNearest,
   stopSections,
+  onPickOnMap,
+  fromVia,
+  toVia,
 }: {
   from: CatalogStop | null;
   to: CatalogStop | null;
+  fromVia: Via | null;
+  toVia: Via | null;
   date: string;
-  onFromChange: (stop: CatalogStop | null) => void;
-  onToChange: (stop: CatalogStop | null) => void;
+  onFromChange: (stop: CatalogStop | null, via?: Via) => void;
+  onToChange: (stop: CatalogStop | null, via?: Via) => void;
   onSwap: () => void;
   onDateChange: (date: string) => void;
   onSubmit: () => void;
@@ -146,6 +153,7 @@ export function TripForm({
   onLocate: () => void;
   fromIsNearest: boolean;
   stopSections: readonly StopSection[];
+  onPickOnMap: (target: "from" | "to") => void;
 }) {
   const { t } = useLingui();
   return (
@@ -182,6 +190,7 @@ export function TripForm({
             sections={stopSections}
             prominent
             onChange={onToChange}
+            onPickOnMap={() => onPickOnMap("to")}
           />
           <div className="my-3 mr-7 border-t border-line" />
           <StopPicker
@@ -196,6 +205,7 @@ export function TripForm({
             places={places}
             sections={stopSections}
             onChange={onFromChange}
+            onPickOnMap={() => onPickOnMap("from")}
           />
         </div>
         <IconButton
@@ -208,6 +218,26 @@ export function TripForm({
           <ArrowDownUp size={19} />
         </IconButton>
       </div>
+      {toVia && to && toVia.stopId === to.id && (
+        <ViaNote
+          label={t`Where to?`}
+          via={toVia}
+          stop={to}
+          stops={stops}
+          language={language}
+          onPick={onToChange}
+        />
+      )}
+      {fromVia && from && fromVia.stopId === from.id && (
+        <ViaNote
+          label={t`From`}
+          via={fromVia}
+          stop={from}
+          stops={stops}
+          language={language}
+          onPick={onFromChange}
+        />
+      )}
       <Button
         variant="quiet"
         className="my-1"

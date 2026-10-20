@@ -1,22 +1,43 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Landmark, MapPin, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Crosshair,
+  Landmark,
+  MapPin,
+  Navigation,
+  Search,
+  X,
+} from "lucide-react";
 import type { I18n } from "@lingui/core";
 import { plural, t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { distanceLabel, towards } from "../i18n";
+import {
+  MAX_WALK_TO_STOP_METERS,
+  nearestStop,
+  walkMeters,
+  type Via,
+} from "../lib/geocode";
 import { usePlaceName } from "../lib/placeNames";
+import { usePlaceSearch } from "../state/usePlaceSearch";
 import { useMediaQuery } from "../lib/useMediaQuery";
 import { RouteChip } from "./RouteChip";
 import { IconButton } from "./ui/IconButton";
 import { placeTitle, stopName } from "../types";
 import type { CatalogStop, Language, Place } from "../types";
 
-const OPTION_DETAIL = "mt-0.5 block text-xs text-muted";
 const STATUS = "bg-tint-50 px-3 py-2.5 text-2xs leading-normal text-muted";
 
-type Choice = { key: string; stop: CatalogStop; place?: Place };
+type Found = {
+  name: string;
+  detail: string;
+  walk: number;
+  latitude: number;
+  longitude: number;
+};
+type Choice = { key: string; stop: CatalogStop; place?: Place; found?: Found };
 
 export interface StopSection {
   key: string;
@@ -51,7 +72,8 @@ interface StopPickerProps {
   sections?: readonly StopSection[];
   labelNote?: string;
   prominent?: boolean;
-  onChange: (stop: CatalogStop | null) => void;
+  onChange: (stop: CatalogStop | null, via?: Via) => void;
+  onPickOnMap?: () => void;
 }
 
 export default function StopPicker({
@@ -67,6 +89,7 @@ export default function StopPicker({
   labelNote,
   prominent = false,
   onChange,
+  onPickOnMap,
 }: StopPickerProps) {
   const id = useId();
   const { t, i18n } = useLingui();
@@ -81,7 +104,9 @@ export default function StopPicker({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const mobile = useMediaQuery("(max-width: 760px)");
-  const query = value ? "" : draft.trim().toLocaleLowerCase();
+  const typed = value ? "" : draft.trim();
+  const query = typed.toLocaleLowerCase();
+  const { places: foundPlaces, searching } = usePlaceSearch(typed);
   const groups = useMemo((): Group[] => {
     const matches = (names: (string | undefined)[]) =>
       !query || names.some((name) => name?.toLocaleLowerCase().includes(query));
@@ -117,8 +142,35 @@ export default function StopPicker({
         stops.find((item) => item.stop_code === place.stop_code);
       return stop ? [{ key: `place-${place.id}`, stop, place }] : [];
     });
-    return [{ key: "matches", choices: [...placeChoices, ...stopChoices] }];
-  }, [stops, places, query, sections, t]);
+    const foundChoices = foundPlaces.flatMap((place) => {
+      const nearest = nearestStop(place, stops);
+      return nearest && nearest.meters <= MAX_WALK_TO_STOP_METERS
+        ? [
+            {
+              key: place.key,
+              stop: nearest.stop,
+              found: {
+                name: place.name,
+                detail: place.detail,
+                walk: walkMeters(nearest.meters),
+                latitude: place.latitude,
+                longitude: place.longitude,
+              },
+            },
+          ]
+        : [];
+    });
+    const groups: Group[] = [
+      { key: "matches", choices: [...placeChoices, ...stopChoices] },
+    ];
+    if (foundChoices.length)
+      groups.push({
+        key: "found",
+        title: t`Anywhere in Sri Lanka`,
+        choices: foundChoices,
+      });
+    return groups;
+  }, [stops, places, foundPlaces, query, sections, t]);
   const choices = useMemo(
     () => groups.flatMap((group) => group.choices),
     [groups],
@@ -199,10 +251,10 @@ export default function StopPicker({
     setActiveIndex(-1);
   }
 
-  function choose(stop: CatalogStop) {
+  function choose(stop: CatalogStop, via?: Via) {
     setDraft("");
     closePicker();
-    onChange(stop);
+    onChange(stop, via);
     // Blur, or onFocus would pop the menu (or the phone sheet) right back open.
     inputRef.current?.blur();
     sheetInputRef.current?.blur();
@@ -211,7 +263,9 @@ export default function StopPicker({
   const help = loading
     ? t`Loading stops…`
     : choices.length === 0
-      ? t`No matching stops. Try another stop name or a place.`
+      ? searching
+        ? t`Searching places…`
+        : t`No matching stops. Try another stop name or a place.`
       : mobile
         ? t({
             message: plural(stopCount, {
@@ -246,14 +300,18 @@ export default function StopPicker({
   }
 
   const option = (
-    { key, stop, place }: Choice,
+    { key, stop, place, found }: Choice,
     index: number,
     inSheet: boolean,
   ) => {
     const stopLabel = stopName(stop, language);
-    const walk = place ? walkLabel(i18n, place.walk_meters) : "";
+    const walk = place
+      ? walkLabel(i18n, place.walk_meters)
+      : found
+        ? walkLabel(i18n, found.walk)
+        : "";
     // A landmark is only a shortcut to its stop, so it never shows as chosen.
-    const isValue = !place && value?.id === stop.id;
+    const isValue = !place && !found && value?.id === stop.id;
     return (
       <li key={key} role="presentation">
         <button
@@ -265,22 +323,48 @@ export default function StopPicker({
           className={`flex w-full items-start gap-2.5 rounded-md text-left active:bg-tint-100 hover-fine:bg-tint-100 [&>svg]:mt-1 [&>svg]:text-muted ${
             index === activeIndex || isValue ? "bg-tint-100" : ""
           } ${inSheet ? "min-h-14 px-3 py-3.5" : "min-h-13 px-2 py-3"}`}
-          onClick={() => choose(stop)}
+          onClick={() =>
+            choose(
+              stop,
+              found
+                ? { ...found }
+                : place
+                  ? {
+                      name: placeTitle(place, language),
+                      walk: place.walk_meters,
+                    }
+                  : undefined,
+            )
+          }
           onMouseEnter={() => setActiveIndex(index)}
         >
-          {place ? (
+          {found ? (
+            <Navigation size={18} aria-hidden="true" />
+          ) : place ? (
             <Landmark size={18} aria-hidden="true" />
           ) : (
             <MapPin size={18} aria-hidden="true" />
           )}
           <span className="min-w-0 flex-1">
             <span className="block text-lg leading-normal font-semibold">
-              {place ? placeTitle(place, language) : stopLabel}
+              {found
+                ? found.name
+                : place
+                  ? placeTitle(place, language)
+                  : stopLabel}
             </span>
-            {place ? (
-              <span className={OPTION_DETAIL}>
-                {t`Nearest stop: ${stopLabel} · ${walk}`}
-              </span>
+            {place || found ? (
+              <>
+                <span className="mt-0.5 flex items-center gap-1 text-sm text-muted">
+                  <MapPin size={13} aria-hidden="true" />
+                  <span className="truncate">{stopLabel}</span>
+                </span>
+                {found?.detail && (
+                  <span className="block truncate text-2xs text-muted">
+                    {found.detail}
+                  </span>
+                )}
+              </>
             ) : (
               !!stop.towards?.length && (
                 <span className="mt-0.5 line-clamp-2 text-xs text-muted">
@@ -289,23 +373,51 @@ export default function StopPicker({
               )
             )}
           </span>
-          <span
-            className="mt-1 flex max-w-26 flex-wrap justify-end gap-1"
-            aria-label={t`Routes`}
-          >
-            {stop.routes.map((route) => (
-              <RouteChip
-                key={route}
-                code={route}
-                color={routeColors.get(route)}
-                size="xs"
-              />
-            ))}
-          </span>
+          {place || found ? (
+            <span className="mt-1 shrink-0 text-sm font-semibold whitespace-nowrap">
+              {walk}
+            </span>
+          ) : (
+            <span
+              className="mt-1 flex max-w-26 flex-wrap justify-end gap-1"
+              aria-label={t`Routes`}
+            >
+              {stop.routes.map((route) => (
+                <RouteChip
+                  key={route}
+                  code={route}
+                  color={routeColors.get(route)}
+                  size="xs"
+                />
+              ))}
+            </span>
+          )}
         </button>
       </li>
     );
   };
+
+  const mapRow = (inSheet: boolean) =>
+    onPickOnMap && (
+      <button
+        type="button"
+        // Safari only focuses a clicked button that has a tabindex; without
+        // focus the picker's blur handler closes the list before the click lands.
+        tabIndex={-1}
+        className={`flex w-full items-center gap-2.5 rounded-md text-left text-lg font-semibold active:bg-tint-100 hover-fine:bg-tint-100 ${
+          inSheet ? "min-h-14 px-3" : "min-h-13 px-2"
+        }`}
+        onClick={() => {
+          closePicker();
+          inputRef.current?.blur();
+          sheetInputRef.current?.blur();
+          onPickOnMap();
+        }}
+      >
+        <Crosshair size={18} className="text-muted" aria-hidden="true" />
+        {t`Choose on map`}
+      </button>
+    );
 
   const list = (inSheet: boolean) => {
     let index = 0;
@@ -321,6 +433,7 @@ export default function StopPicker({
         aria-label={label}
         aria-busy={loading}
       >
+        {onPickOnMap && <li role="presentation">{mapRow(inSheet)}</li>}
         {groups.map((group) => {
           const options = group.choices.map((choice) =>
             option(choice, index++, inSheet),
